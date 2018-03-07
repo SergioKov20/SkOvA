@@ -1,0 +1,12 @@
+1) interrupt.c = inicialització de les interrupcions keyboard i clock a la IDT
+2) entry.S = implementat RESTORE_ALL, EOI, i ENTRY dels handlers
+3) entry.h = capçalera dels handlers
+4) hardware.c = enable_int() -> enable bits de interrupcions timer i keyboard
+5) interrupt.c = Començades routines de servei de keyboard i clock (cal acabar-les)
+
+TODO:
+- Acabar routine de keyboard
+- Implementar system_call_handler (tot)
+- write system call (sys_write routine a sys.c + modificar sys_call_table + wrapper lib.c)
+- Tot el punt 3.8.3
+- errno, perror

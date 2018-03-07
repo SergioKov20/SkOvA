@@ -51,3 +51,44 @@
       movl %edx, %ds;           \
       movl %edx, %es
 
+#define RESTORE_ALL \
+	popl %ebx; \
+	popl %ecx; \
+	popl %edx; \
+	popl %esi; \
+	popl %edi; \
+	popl %ebp; \
+	popl %eax; \
+	popl %ds; \
+	popl %es; \
+	popl %fs; \
+	popl %gs
+
+//End Of Interruption
+#define EOI \
+	movb $0x20, %al ; \
+	outb %al, $0x20 ;
+
+/*Recordar posar la capçalera void dels handlers a include/entry.h!!
+	Capçalera ENTRY
+	1) SAVE ALL (guardar contexto)
+	2) EOI
+	3) call service_routine
+	4) RESTORE_ALL (restore contexto)
+	-- (opcional) clear del error code si tiene --
+	5) iret (no ret porque no es un return normal, tiene que cambiar de mode) */
+
+ENTRY(keyboard_handler)
+	SAVE_ALL
+	EOI
+	call keyboard_routine
+	RESTORE_ALL	
+	iret
+
+ENTRY(clock_handler)
+	SAVE_ALL
+	EOI
+	call clock_routine
+	RESTORE_ALL
+	iret
+

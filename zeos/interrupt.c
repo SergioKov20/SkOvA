@@ -6,7 +6,7 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
-
+#include <entry.h>
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
@@ -84,6 +84,49 @@ void setIdt()
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
 
+	// El rellotge ha d'estar a la posició 32, i el teclat a la 33 de la IDT
+	// 0 = Nivell de privilegis
+	// Quan això s'executa crida al handler de la funció (codi a entry.S)
+
+	setInterruptHandler(33, keyboard_handler, 0);
+  	setInterruptHandler(32, clock_handler, 0);
+
+	//TODO setTrapHandler init (creo que está ya hecho en el PDF)
+	
+
   set_idt_reg(&idtR);
 }
 
+
+//Service routines
+
+void keyboard_routine()
+{
+	// Read the port of the data register 0x60 con inb(puerto) de io.c
+	unsigned char key = inb(0x60);
+
+	/* TODO
+	- Hay que distinguir si make (pulsar/0) o break (soltar/1), mirar bit 7, del 0..6 el 		código para traducir a caracter.
+	- Si es make, tabla de traducción char_map en interrupt.c para caracter escaneado.
+	- Mostrar el caracter en la esquina superior izquierda con printc_xy de io.c
+	- Si es la tecla no es ASCII (CTRL, Enter, BACKSPACE, ...) mostrar la letra 'C'.
+	*/
+
+	if() { //Make o Break (solo entra si Make)
+
+		if() { //ASCII yes, mostrar key
+
+		} else { //ASCII no, mostrar 'C'
+
+		}
+	}	
+
+}
+
+void clock_routine() //TODO
+{
+	//Llamar a zeos_show_clock para mostrar reloj con tiempo desde boot
+	zeos_show_clock();
+
+	//Esto debería mostrar segundos en la pantalla. ¿Sólo es esto? Repasar
+}
