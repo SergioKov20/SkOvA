@@ -3,7 +3,7 @@
  */
 
 #include <libc.h>
-
+#include <errno.h>
 #include <types.h>
 
 int errno;

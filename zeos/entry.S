@@ -92,3 +92,17 @@ ENTRY(clock_handler)
 	RESTORE_ALL
 	iret
 
+ENTRY(system_call_handler)
+	SAVE_ALL
+	cmpl $0, %eax				//Syscall negativo = error
+	jl err
+	cmpl $MAX_SYSCALL, %eax			//Syscall mayor de 4 = error
+	jg err
+	call *sys_call_table(, %eax, 0x04)	//Saltamos a la rutina de servicio
+	jmp fin					//Fin
+  err:
+	movl $-ENOSYS, %eax			//Ponemos el error ENOSYS
+  fin:
+	movl %eax, 0x18(%esp)			//Cambio del valor de %eax en la pila
+	RESTORE_ALL
+	iret

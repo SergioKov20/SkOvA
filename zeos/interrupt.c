@@ -9,6 +9,8 @@
 #include <entry.h>
 #include <zeos_interrupt.h>
 
+int zeos_ticks;
+
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
@@ -91,7 +93,7 @@ void setIdt()
 	setInterruptHandler(33, keyboard_handler, 0);
   	setInterruptHandler(32, clock_handler, 0);
 
-	//TODO setTrapHandler init (creo que está ya hecho en el PDF)
+	setTrapHandler(0x80, system_call_handler, 3); //Punto de entrada de llamada al sistema
 	
 
   set_idt_reg(&idtR);
@@ -103,30 +105,30 @@ void setIdt()
 void keyboard_routine()
 {
 	// Read the port of the data register 0x60 con inb(puerto) de io.c
-	unsigned char key = inb(0x60);
+	unsigned char data = inb(0x60);
 
-	/* TODO
-	- Hay que distinguir si make (pulsar/0) o break (soltar/1), mirar bit 7, del 0..6 el 		código para traducir a caracter.
-	- Si es make, tabla de traducción char_map en interrupt.c para caracter escaneado.
-	- Mostrar el caracter en la esquina superior izquierda con printc_xy de io.c
-	- Si es la tecla no es ASCII (CTRL, Enter, BACKSPACE, ...) mostrar la letra 'C'.
-	*/
+	if(data < 0x80) { //Estamos haciendo Make (Bit 7 del registro != 1)
 
-	if() { //Make o Break (solo entra si Make)
+		if(char_map[data] != '\0') //No es caracter especial, printar el char
+		{ 
+			printc_xy(0, 20, char_map[data]);
 
-		if() { //ASCII yes, mostrar key
+		} 
 
-		} else { //ASCII no, mostrar 'C'
-
+		else //caracter especial, mostrar 'C'
+		{ 
+			printc_xy(0, 20, 'C');
 		}
 	}	
 
 }
 
-void clock_routine() //TODO
+void clock_routine() //TODO (acabarlo)
 {
+
+	//Incremento de zeos_ticks
+	++zeos_ticks;
+
 	//Llamar a zeos_show_clock para mostrar reloj con tiempo desde boot
 	zeos_show_clock();
-
-	//Esto debería mostrar segundos en la pantalla. ¿Sólo es esto? Repasar
 }
