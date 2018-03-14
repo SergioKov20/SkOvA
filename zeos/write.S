@@ -15,6 +15,11 @@ Wrappers must carry out the following steps:
 ENTRY(write)
 	push %ebp
 	movl %esp, %ebp
+
+	push %ebx 
+	push %ecx
+	push %edx
+
 	movl 8(%ebp), %ebx //1a (int)
 	movl 12(%ebp), %ecx //1b (puntero)
 	movl 16(%ebp), %edx //1c (int)
@@ -26,8 +31,8 @@ ENTRY(write)
 	movl %eax, errno //4 (version con error)
 	movl $-1, %eax
 
-  fin:	pop %edx //4 (version okey)
+  fin:	pop %edx 
 	pop %ecx
 	pop %ebx
-	pop %ebp
+	pop %ebp //4 (version okey)
 	ret //5
