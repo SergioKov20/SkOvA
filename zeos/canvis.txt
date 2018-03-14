@@ -3,17 +3,10 @@
 3) entry.h = capçalera dels handlers
 4) hardware.c = enable_int() -> enable bits de interrupcions timer i keyboard
 5) interrupt.c = Implementades routines de servei de keyboard i clock
+6) write.S implementa write --> handler de llamadas al sistema --> llama a sys_call_table --> llama a sys_write --> llama a sys_write_console
 
-TODO:
-- Implementar system_call_handler 
-- write system call (sys_write routine a sys.c + modificar sys_call_table + wrapper lib.c/libc.h)
-	*sys_call_table.S
-	*sys_write (en sys.c)
-	*write (en lib.c)
-
+- Acabar sys_write
 - GetTime system call (punto 4 para abajo)
-- errno, perror (bajar de internet)
-
 
 
 Para crear user se necesitan user.o etc, ahi habria que poner el .S del del write

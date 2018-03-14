@@ -41,6 +41,10 @@ main(void)
 	acum = 0;
 	acum = outer(count);
 	int add1test = add(20, 43);
-	while (1);
+	
+	write(1, "\nWelcome to ZeOS!\n", 18);
+	
+	//while (1);
+
 	return 0;
 }
