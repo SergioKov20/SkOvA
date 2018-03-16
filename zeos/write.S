@@ -31,7 +31,8 @@ ENTRY(write)
 	movl %eax, errno //4 (version con error)
 	movl $-1, %eax
 
-  fin:	pop %edx 
+  fin:	
+	pop %edx 
 	pop %ecx
 	pop %ebx
 	pop %ebp //4 (version okey)

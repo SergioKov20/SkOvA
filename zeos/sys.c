@@ -18,6 +18,10 @@
 
 #include <errno.h>
 
+#include <system.h>
+
+extern int zeos_ticks; //Para compartir el valor en interrupt
+
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -9; /*EBADF*/
@@ -75,7 +79,6 @@ void sys_exit()
 int sys_write(int fd, char * buffer, int size)
 {
 	int ret;
-	char local_buffer[4096];
 
 	//Punto 1 (a/b/c)
 	ret = check_fd(fd, ESCRIPTURA);
@@ -83,8 +86,21 @@ int sys_write(int fd, char * buffer, int size)
 	if (buffer == NULL) return -14; //ERROR: INVALID ADREÇA (-14)
 	if (size < 0) return -22; //ERROR: ARGUMENT INVALID (-22)
 
-	//Punto 2 y 3 TODO
-	
+	//Punto 2 y 3
+	int i;
+	char local_buffer[4096];
+	for(i=0; i+4096 < size; i+=4096) {
+		copy_from_user(buffer, local_buffer, i+4096);
+		sys_write_console(local_buffer, i+4096);
+		buffer += 4096;
+	}
+	copy_from_user(buffer, local_buffer, size-i);
+	sys_write_console(local_buffer, size-i);
 
 	return 0; //Punto 4
+}
+
+int sys_gettime() 
+{
+	return zeos_ticks;
 }

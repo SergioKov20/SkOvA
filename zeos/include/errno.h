@@ -1,18 +1,7 @@
-/* 
- * errno.h
- * This file has no copyright assigned and is placed in the Public Domain.
- * This file is a part of the mingw-runtime package.
- * No warranty is given; refer to the file DISCLAIMER within the package.
- *
- * Error numbers and access to error reporting.
- *
- */
-
 #ifndef _ERRNO_H_
 #define	_ERRNO_H_
 
-/* All the headers include this file. */
-#include <_mingw.h>
+int errno;
 
 /*
  * Error numbers.
@@ -24,7 +13,6 @@
  */
 #define EPERM		1	/* Operation not permitted */
 #define	ENOFILE		2	/* No such file or directory */
-#define	ENOENT		2
 #define	ESRCH		3	/* No such process */
 #define	EINTR		4	/* Interrupted function call */
 #define	EIO		5	/* Input/output error */
@@ -67,35 +55,50 @@
 #define	ENOTEMPTY	41	/* Directory not empty (90 in Cyg?) */
 #define	EILSEQ		42	/* Illegal byte sequence */
 
-/*
- * NOTE: ENAMETOOLONG and ENOTEMPTY conflict with definitions in the
- *       sockets.h header provided with windows32api-0.1.2.
- *       You should go and put an #if 0 ... #endif around the whole block
- *       of errors (look at the comment above them).
- */
-
-#ifndef	RC_INVOKED
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-/*
- * Definitions of errno. For _doserrno, sys_nerr and * sys_errlist, see
- * stdlib.h.
- */
-#ifdef _UWIN
-#undef errno
-extern int errno;
-#else
-_CRTIMP int* __cdecl _errno(void);
-#define	errno		(*_errno())
-#endif
-
-#ifdef	__cplusplus
-}
-#endif
-
-#endif	/* Not RC_INVOKED */
+//Lista de errores (para no tener que poner todo en el perror()
+char *lista_errores[] = {
+	/*EPERM 1*/ "Operation not permitted",
+	/*ENOFILE 2*/ "No such file or directory",
+	/*ESRCH 3*/ "No such process", 
+	/*EINTR 4*/ "Interrupted function call ", 
+	/*EIO 5*/  "Input/output error ", 
+	/*ENXIO 6*/  "No such device or address ",
+	/*E2BIG 7*/  "Arg list too long ",
+	/*ENOEXEC 8*/  "Exec format error ",
+	/*EBADF 9*/ "Bad file descriptor ",
+	/*ECHILD 10*/ "No child processes ",
+	/*EAGAIN 11*/ "Resource temporarily unavailable ",
+	/*ENOMEM 12*/ "Not enough space ",
+	/*EACCES 13*/ "Permission denied ",
+	/*EFAULT 14*/ "Bad address ",
+	/*UNKWN 15*/ "Unknown error ",
+	/*EBUSY 16*/ "strerror reports 'Resource device' ",
+	/*EEXIST 17*/ "File exists ",
+	/*EXDEV 18*/ "Improper link ",
+	/*ENODEV 19*/ "No such device ",
+	/*ENOTDIR 20*/ "Not a directory ",
+	/*EISDIR 21*/ "Is a directory ",
+	/*EINVAL 22*/ "Invalid argument ",
+	/*ENFILE 23*/ "Too many open files in system ",
+	/*EMFILE 24*/ "Too many open files ",
+	/*ENOTTY 25*/ "Inappropriate I/O control operation ",
+	/*UNKWN 26*/ "Unknown error ",
+	/*EFBIG 27*/ "File too large ",
+	/*ENOSPC 28*/ "No space left on device ",
+	/*ESPIPE 29*/ "Invalid seek ",
+	/*EROFS 30*/ "Read-only file system ",
+	/*EMLINK 31*/ "Too many links ",
+	/*EPIPE 32*/ "Broken pipe ",
+	/*EDOM 33*/ "Domain error ",
+	/*ERANGE 34*/ "Result too large ",
+	/*UNKWN 35*/ "Unknown error ",
+	/*EDEADLOCK 36*/ "Resource deadlock avoided ",
+	/*UNKWN 37*/ "Unknown error ",
+	/*ENAMETOOLONG 38*/ "Filename too long ",
+	/*ENOLCK 39*/ "No locks available ",
+	/*ENOSYS 40*/ "Function not implemented ",
+	/*ENOTEMPTY 41*/ "Directory not empty ",
+	/*EILSEQ 42*/ "Illegal byte sequence "
+};
 
 #endif	/* Not _ERRNO_H_ */

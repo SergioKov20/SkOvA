@@ -4,7 +4,6 @@
 
 #include <asm.h>
 #include <segment.h>
-#include <errno.h>
 
 
 /**************************************************/
@@ -97,12 +96,12 @@ ENTRY(system_call_handler)
 	SAVE_ALL
 	cmpl $0, %eax				//Syscall negativo = error
 	jl err
-	cmpl $MAX_SYSCALL, %eax			//Syscall mayor de 4 = error
+	cmpl $MAX_SYSCALL, %eax			//Syscall mayor de 10 = error
 	jg err
 	call *sys_call_table(, %eax, 0x04)	//Saltamos a la rutina de servicio
 	jmp fin					//Fin
   err:
-	movl $-ENOSYS, %eax			//Ponemos el error ENOSYS
+	movl $-40, %eax				//Ponemos el error ENOSYS (40)
   fin:
 	movl %eax, 0x18(%esp)			//Cambio del valor de %eax en la pila
 	RESTORE_ALL

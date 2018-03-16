@@ -9,7 +9,9 @@
 #include <entry.h>
 #include <zeos_interrupt.h>
 
-int zeos_ticks;
+#include <system.h>
+
+int zeos_ticks = 0;
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
@@ -111,19 +113,19 @@ void keyboard_routine()
 
 		if(char_map[data] != '\0') //No es caracter especial, printar el char
 		{ 
-			printc_xy(0, 20, char_map[data]);
+			printc_xy(50, 20, char_map[data]);
 
 		} 
 
 		else //caracter especial, mostrar 'C'
 		{ 
-			printc_xy(0, 20, 'C');
+			printc_xy(50, 20, 'C');
 		}
 	}	
 
 }
 
-void clock_routine() //TODO (acabarlo)
+void clock_routine()
 {
 
 	//Incremento de zeos_ticks

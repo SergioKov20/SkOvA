@@ -10,6 +10,8 @@
 
 int write(int fd, char *buffer, int size);
 
+int gettime();
+
 void itoa(int a, char *b);
 
 int strlen(char *a);
@@ -17,6 +19,8 @@ int strlen(char *a);
 int getpid();
 
 int fork();
+
+void perror();
 
 void exit();
 

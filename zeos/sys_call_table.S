@@ -1,7 +1,7 @@
 #include <asm.h>
 #include <segment.h>
 
-ENTRY(sys_call_table) //4 es el Write, 10 es el gettime
+ENTRY(sys_call_table) //4 es el write, 10 es el gettime
 	.long sys_ni_syscall //0
 	.long sys_ni_syscall //1
 	.long sys_ni_syscall //2
@@ -15,4 +15,4 @@ ENTRY(sys_call_table) //4 es el Write, 10 es el gettime
 	.long sys_gettime //10
 
 .globl MAX_SYSCALL
-MAX_SYSCALL = (. - sys_call_table)/4
+MAX_SYSCALL = 10
