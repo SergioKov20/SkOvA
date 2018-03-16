@@ -82,20 +82,16 @@ int sys_write(int fd, char * buffer, int size)
 
 	//Punto 1 (a/b/c)
 	ret = check_fd(fd, ESCRIPTURA);
-	if (ret != 0) return ret; //ERROR: PERMISOS (EACCES)
+	if (ret != 0) return ret; //ERROR: PERMISOS (EACCES) o BAD FILE DESCRIPTOR
 	if (buffer == NULL) return -14; //ERROR: INVALID ADREÇA (-14)
 	if (size < 0) return -22; //ERROR: ARGUMENT INVALID (-22)
 
-	//Punto 2 y 3
-	int i;
-	char local_buffer[4096];
-	for(i=0; i+4096 < size; i+=4096) {
-		copy_from_user(buffer, local_buffer, i+4096);
-		sys_write_console(local_buffer, i+4096);
-		buffer += 4096;
-	}
-	copy_from_user(buffer, local_buffer, size-i);
-	sys_write_console(local_buffer, size-i);
+	//Punto 2 y 3 (optimizado, basta con saber si devuelve bytes error y devolverlos)
+	char local_buffer[size];
+	ret = copy_from_user(buffer, local_buffer, size);
+	if(ret != 0) return ret; //Luego será negativo y dará unknown error	
+
+	sys_write_console(local_buffer, size);
 
 	return 0; //Punto 4
 }
