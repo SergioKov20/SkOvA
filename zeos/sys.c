@@ -20,6 +20,8 @@
 
 #include <system.h>
 
+//struct list_head freequeue; Ininializacion de la readyqueue aquí
+
 extern int zeos_ticks; //Para compartir el valor en interrupt
 
 int check_fd(int fd, int permissions)
