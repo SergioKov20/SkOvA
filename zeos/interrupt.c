@@ -6,6 +6,7 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
+#include <entry.h>
 
 #include <zeos_interrupt.h>
 
@@ -76,14 +77,33 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 
 void setIdt()
 {
-  /* Program interrups/exception service routines */
-  idtR.base  = (DWord)idt;
-  idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
-  
-  set_handlers();
+	/* Program interrups/exception service routines */
+	idtR.base  = (DWord)idt;
+	idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
 
-  /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+	set_handlers();
 
-  set_idt_reg(&idtR);
+	/* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+
+	set_idt_reg(&idtR);
+
+	setInterruptHandler(33, keyboard_handler, 0);
 }
 
+void keyboard_routine() 
+{
+	//Leer datos del puerto 0x60
+    unsigned char key = inb(0x60);
+
+	//Es un MAKE (bit 7 = 0)
+	if(key < 0x80) 
+	{ 
+		char c = char_map[key];
+
+		if(c != '\0')
+		{
+			printc_xy(0, 0, c);
+		}
+		else printc_xy(0, 0, 'C');
+	}
+}
