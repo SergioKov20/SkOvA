@@ -24,7 +24,10 @@ Del documento:
 --- DONE: Implementar keyboard_routine (interrupt.c)
 --- DONE: Implementar syscall_handler_sysenter (entry.S)
 - Inicializar MSRs con el handler (writeMSR, etc)
-- Implementar write (sys_write / sys_call_table con rutina / wrapper llamada al sistema)
-- Implementar errno / perrno (libc.c)
+--- DONE: sys_call_table con write
+- Implementar wrapper write
+--- DONE: Implementar rutina C de sys_write
+--- DONE: Librería errno.h
+- Implementar perror() (libc.c), requiere write completado
 
 Interrupción reloj (más tarde, lo mismo que con el teclado a nivel de pasos)

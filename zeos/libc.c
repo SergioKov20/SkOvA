@@ -3,7 +3,7 @@
  */
 
 #include <libc.h>
-
+#include <errno.h>
 #include <types.h>
 
 int errno;
@@ -42,4 +42,9 @@ int strlen(char *a)
   
   return i;
 }
+
+/*TODO
+int perror()
+{
+} */
 
