@@ -43,8 +43,9 @@ int strlen(char *a)
   return i;
 }
 
-/*TODO
 int perror()
 {
-} */
-
+	char errormsg[256];
+	itoa(errno, errormsg);
+	write(1, errormsg, strlen(errormsg));
+}

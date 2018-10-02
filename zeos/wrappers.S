@@ -20,7 +20,7 @@ ENTRY(write)
 	push %ebx
 	push %ecx		//3
 	push %edx
-	push %edi
+	push %esi
 
 	movl 8(%ebp), %ebx 	//1.1 (int, 4 bits)
 	movl 12(%ebp), %ecx 	//1.2 (pointer, 4 bits)
@@ -28,7 +28,7 @@ ENTRY(write)
 
 	movl $4, %eax		//2
 
-	movl backuser, %edi	//5
+	leal backuser, %esi	//5
 
 	sysenter		//6
 
@@ -37,13 +37,40 @@ backuser:
 	jge fin
 	imul $-1, %eax		//pasar error positivo
 	movl %eax, errno
+	movl $-1, %eax		//valor de retorno -1
 
 fin:
 	pop %edx 			//7
 	pop %ecx
 	pop %ebx
 
+	movl %ebp, %esp
 	pop %ebp
 	ret 				//9
 
 	
+ENTRY(gettime)
+	push %ebp		
+	movl %esp, %ebp
+
+	push %ecx		
+	push %edx
+	push %esi
+
+	movl $10, %eax		
+
+	leal back_gettime, %esi	
+
+	sysenter		
+
+back_gettime:	
+	cmpl $0, %eax
+	jge fin_gettime
+	imul $-1, %eax		
+	movl %eax, errno
+	movl $-1, %eax		
+
+fin_gettime:
+	movl %ebp, %esp
+	pop %ebp
+	ret 				

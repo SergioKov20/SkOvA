@@ -13,9 +13,10 @@
 
 #include <sched.h>
 
+#include <system.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
-#define BUFFSIZE 4
 
 int check_fd(int fd, int permissions)
 {
@@ -73,7 +74,7 @@ int sys_write(int fd, char * buffer, int size)
 	if(buffer == NULL) return -14; 	//1b) INVALID ADDRESS
 	if(size < 0) return -22; 	//1c) INVALID ARGUMENT
 
-	char sysbuffer[BUFFSIZE]; //Para copiar el buffer del modo usuario
+	char sysbuffer[size]; //Para copiar el buffer del modo usuario
 	error = copy_from_user(buffer, sysbuffer, size); //2, si da error se retorna -1
 	if(error != 0) return error;
 
@@ -81,3 +82,11 @@ int sys_write(int fd, char * buffer, int size)
 
 	return 0; //4
 }
+
+//SYS_GETTIME
+
+int sys_gettime()
+{
+	return zeos_ticks;
+}
+

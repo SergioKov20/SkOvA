@@ -54,7 +54,7 @@
 
 #define EOI      \
 	movb $0x20, %al; \
-	outb %al, $0x20;
+	outb %al, $0x20
 
 #define RESTORE_ALL \
       popl %ebx; \
@@ -67,7 +67,7 @@
       popl %ds; \
       popl %es; \
       popl %fs; \
-      popl %gs; \
+      popl %gs \
 
 ENTRY(keyboard_handler)
 	SAVE_ALL
@@ -76,42 +76,55 @@ ENTRY(keyboard_handler)
 	RESTORE_ALL
 	iret
 
+ENTRY(clock_handler)
+	SAVE_ALL
+	EOI
+	call clock_routine
+	RESTORE_ALL
+	iret
+
 ENTRY(syscall_handler_sysenter)
 	push $__USER_DS
-	push %EBP 		// User stack address
+	push %ebp 		// User stack address
 	pushfl
 	push $__USER_CS
-	push 4(%EBP)        	// User return address
+	push 4(%ebp)        	// User return address
 	SAVE_ALL
-	cmpl $0, %EAX
+
+	cmpl $0, %eax
 	jl sysenter_err
-	cmpl $MAX_SYSCALL, %EAX
+
+	cmpl $MAX_SYSCALL, %eax
 	jg sysenter_err
-	call *sys_call_table(, %EAX, 0x04)
+
+	call *sys_call_table(, %eax, 0x04)
 	jmp sysenter_fin
+
 sysenter_err:
-	movl $-ENOSYS, %EAX
+	movl $-ENOSYS, %eax
+
 sysenter_fin:
-	movl %EAX, 0x18(%ESP)
+	movl %eax, 0x18(%esp)
 	RESTORE_ALL
-	movl (%ESP), %EDX	// Return address
-	movl 12(%ESP), %ECX	// User stack address
+
+	movl (%esp), %edx	// Return address
+	movl 12(%esp), %ecx	// User stack address
 	sti			// Enable interrupts again
+
 	sysexit
+
+//WRITE MSR
 
 ENTRY(writeMSR)
 	push %ebp
 	movl %esp, %ebp
 
-	push %ebx
-	push %ecx
+	movl 8(%ebp), %ecx
+	movl 12(%ebp), %eax
+	xor %edx, %edx
 
-	movl 8(%ebp), %ebx
-	movl 12(%ebp), %ecx
+	wrmsr	//MSR[ECX] <-- EAX:EDX
 
-	movl %ecx, %ebx
-
-	pop %ecx
-	pop %ebx
-	
+	movl %ebp, %esp
+	pop %ebp
 	ret

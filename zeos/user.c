@@ -29,14 +29,25 @@ int add(int par1, int par2)
 
 int add2(int par1, int par2);
 
+void printtime(int time)
+{
+	char buftime[256];
+	itoa(time, buftime);
+	write(1, buftime, strlen(buftime));
+}
+
 int __attribute__ ((__section__(".text.main")))
 
 main(void)
 {
-    /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
-     /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
+	int time = gettime();
+	printtime(time); //Prueba gettime
 
-	write(1, "Hello world", 4);
+	write(1, "\nWelcome to ZeOS!\n", 18);	//Prueba write
+
+	perror();	//Prueba perror
+
 	while(1);
+
 	return 0;
 }
