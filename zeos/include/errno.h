@@ -10,10 +10,6 @@
 
 #ifndef _ERRNO_H_
 #define	_ERRNO_H_
-
-/* All the headers include this file. */
-#include <_mingw.h>
-
 /*
  * Error numbers.
  * TODO: Can't be sure of some of these assignments, I guessed from the
@@ -73,29 +69,5 @@
  *       You should go and put an #if 0 ... #endif around the whole block
  *       of errors (look at the comment above them).
  */
-
-#ifndef	RC_INVOKED
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-/*
- * Definitions of errno. For _doserrno, sys_nerr and * sys_errlist, see
- * stdlib.h.
- */
-#ifdef _UWIN
-#undef errno
-extern int errno;
-#else
-_CRTIMP int* __cdecl _errno(void);
-#define	errno		(*_errno())
-#endif
-
-#ifdef	__cplusplus
-}
-#endif
-
-#endif	/* Not RC_INVOKED */
 
 #endif	/* Not _ERRNO_H_ */

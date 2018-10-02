@@ -36,12 +36,7 @@ main(void)
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 
-	long count, acum;
-	count = 75;
-	acum = 0;
-	acum = outer(count);
-	int s1 = add(20, 43);
-	int s2 = add2(38, 23);
+	write(1, "Hello world", 4);
 	while(1);
 	return 0;
 }

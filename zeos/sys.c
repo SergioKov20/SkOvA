@@ -15,6 +15,7 @@
 
 #define LECTURA 0
 #define ESCRIPTURA 1
+#define BUFFSIZE 4
 
 int check_fd(int fd, int permissions)
 {
@@ -67,12 +68,12 @@ int sys_write(int fd, char * buffer, int size)
 {
 	int error;
 
-	int error = check_fd(fd, ESCRIPTURA);
+	error = check_fd(fd, ESCRIPTURA);
 	if(error != 0) return error; 	//1a) EACCESS or BAD FILE DESCRIPTOR (-9 o -13)
-	if(buffer == NULL) return -14 	//1b) INVALID ADDRESS
-	if(size < 0) return -22 		//1c) INVALID ARGUMENT
+	if(buffer == NULL) return -14; 	//1b) INVALID ADDRESS
+	if(size < 0) return -22; 	//1c) INVALID ARGUMENT
 
-	char sysbuffer[size]; //Para copiar el buffer del modo usuario
+	char sysbuffer[BUFFSIZE]; //Para copiar el buffer del modo usuario
 	error = copy_from_user(buffer, sysbuffer, size); //2, si da error se retorna -1
 	if(error != 0) return error;
 

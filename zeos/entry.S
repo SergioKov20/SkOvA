@@ -4,6 +4,7 @@
 
 #include <asm.h>
 #include <segment.h>
+#include <errno.h>
 
 
 /**************************************************/
@@ -77,10 +78,10 @@ ENTRY(keyboard_handler)
 
 ENTRY(syscall_handler_sysenter)
 	push $__USER_DS
-	push %EBP 			// User stack address
+	push %EBP 		// User stack address
 	pushfl
 	push $__USER_CS
-	push 4(%EBP)        // User return address
+	push 4(%EBP)        	// User return address
 	SAVE_ALL
 	cmpl $0, %EAX
 	jl sysenter_err
@@ -95,5 +96,22 @@ sysenter_fin:
 	RESTORE_ALL
 	movl (%ESP), %EDX	// Return address
 	movl 12(%ESP), %ECX	// User stack address
-	sti					// Enable interrupts again
+	sti			// Enable interrupts again
 	sysexit
+
+ENTRY(writeMSR)
+	push %ebp
+	movl %esp, %ebp
+
+	push %ebx
+	push %ecx
+
+	movl 8(%ebp), %ebx
+	movl 12(%ebp), %ecx
+
+	movl %ecx, %ebx
+
+	pop %ecx
+	pop %ebx
+	
+	ret
