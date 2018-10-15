@@ -45,23 +45,3 @@ Ahora puedo hacer un u-->stack[..] para acceder en alto nivel a la pila de siste
 <<Solo hace falta ensamblador si tengo que acceder a registros>>
 
 ***************************
-
-PROGRESO:
----------
-
-1) FREEQUEUE:
-- Declare  and  initialize a variable named freequeue of type struct list_head. 
-//TODO (está de momento en sched.h)
-
-- Modify the declaration of the task_struct structure. Add one field named list that you will use to enqueue the structure into a queue. 
-//TODO (está de momento en sched.h)
-
-- Add all task_structs to this queue as, at this moment, all of them are available. /
-//TODO (está de momento en sched.h)
-
-- Due to the fact that the list functions are generic, they use a unique type: the struct list_head. So you will need a function to find the memory address of a task_struct given a particular list_head struct  address.  There  is  one  function  named list_head_to_task_struct which  returns  a pointer to a task_struct given a pointer to a list_head struct. Its header is: struct task_struct *list_head_to_task_struct(struct list_head *l);
-//TODO (tenías dudas de si había que usarlo para meter las freequeues como list
-
-2) READYQUEUE:
-- Declare  and  initialize a variable named readyqueue of type struct list_head. This queue must be initialized during system initialization and it is empty at the beginning.
-//TODO (está de momento en sched.h, la inicialización en sys.c)
