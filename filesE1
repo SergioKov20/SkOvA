@@ -1,0 +1,11 @@
+--- E1 ---
+
+sched.c = inicialización de freequeue y readyqueue, idle e init
+
+user.c = se llama a init_task1() ???
+
+interrupt.c = TSS / WriteMSR (hay que cambiarlos para init_task1)
+ 
+system.c = se inicializa todo
+
+mm.c / list.c = operaciones de memoria y listas

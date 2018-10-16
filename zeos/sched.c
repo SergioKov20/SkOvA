@@ -58,23 +58,23 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	struct list_head *first_free_task = list_first(&freequeue); //Coge el primero libre de la freequeue (list_first en list.h)
-	list_del(first_free_task); 									//Como va a cambiar se quita de la freequeue
+	struct list_head *first_free_task = list_first(&freequeue); 	//Coge el primero libre de la freequeue (list_first en list.h)
+	list_del(first_free_task); 					//Como va a cambiar se quita de la freequeue
 	idle_task = list_head_to_task_struct(first_free_task);		//Tenemos un list_head pero queremos el task_struct
 
-	idle_task->PID = 0;											//Punto 2 PDF
-	allocate_DIR(idle_task); 									//Punto 3 PDF
+	idle_task->PID = 0;						//Punto 2 PDF
+	allocate_DIR(idle_task); 					//Punto 3 PDF
 
 	/* Ayuda de Alex en el lab para idle: 
 	"task_struct *t apunta al task_struct (y al task_union porque apuntan al mismo sitio)
-	Yo puedo hacer un casting u = ((union task_union*) t) para que apunte a la task_union
-	Convirtiendo la t de task_struct a task_union puedo acceder a los campos de la t.union
+	Yo puedo hacer un casting u = ((union task_union*) t) para que apunte a la task_union.
+	Convirtiendo la t de task_struct a task_union puedo acceder a los campos de la t.union.
 	Ahora puedo hacer un u->stack[..] para acceder en alto nivel a la pila de sistema." */
 
 	union task_union* idle_task_union = (union task_union*) idle_task;
 	//Context switch:
 	idle_task_union->stack[KERNEL_STACK_SIZE - 1] = &cpu_idle;	//Dirección a ejecutar = cpu_idle
-	idle_task_union->stack[KERNEL_STACK_SIZE - 2] = 0;			//Valor inicial registro ebp post dynamic link
+	idle_task_union->stack[KERNEL_STACK_SIZE - 2] = 0;		//Valor inicial registro ebp post dynamic link
 
 	//Guardar en campo del struct del union la posición de pila del valor inicial anterior
 	idle_task_union->task.kernel_esp = &(idle_task_union->stack[KERNEL_STACK_SIZE - 2]);
@@ -83,6 +83,16 @@ void init_idle (void)
 
 void init_task1(void)
 {
+	struct list_head *first_free_task = list_first(&freequeue);
+	list_del(first_free_task);
+	struct task_struct *new_task; //TODO cómo hacer que se vea desde fuera?
+	new_task = list_head_to_task_struct(first_free_task);
+
+	init_task->PID = 1;
+	allocate_DIR(init_task);
+	set_user_pages(init_task);
+	//TODO Punto 4 de init (modificar TSS mm.c y MSR 0x175 interrupt.c)
+	set_cr3(get_DIR(new_task));
 }
 
 
@@ -91,7 +101,8 @@ void init_sched()
 	//init freequeue (INIT_LIST_HEAD en list.c inicializa lista vacía)
 	INIT_LIST_HEAD(&freequeue);
 	int i;	
-	for(i = 0; i < NR_TASKS; i++) { //Añadir todos los NR_TASKS procesos a la cola de ready)
+	for(i = 0; i < NR_TASKS; i++) //Añadir todos los NR_TASKS procesos a la cola de ready)
+	{ 
 		list_add(&(task[i].task.list), &freequeue);
 	}
 
