@@ -73,4 +73,23 @@ back_gettime:
 fin_gettime:
 	movl %ebp, %esp
 	pop %ebp
+	ret 
+
+ENTRY(getpid)
+	push %ebp		
+	movl %esp, %ebp
+
+	push %ecx		
+	push %edx
+	push %esi
+
+	movl $20, %eax		
+
+	leal back_getpid, %esi	
+
+	sysenter	
+
+back_getpid:
+	movl %ebp, %esp
+	pop %ebp
 	ret 				
