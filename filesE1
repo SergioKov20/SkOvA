@@ -1,10 +1,12 @@
 --- E1 ---
 
-sched.c = inicialización de freequeue y readyqueue, idle e init
+sched.c = inicialización de freequeue y readyqueue, idle, init, y la parte C de inner_task_switch
 
-user.c = se llama a init_task1() ???
+task_switch.S = assembler de task_switch y una parte del inner_task_switch
 
-interrupt.c = TSS / WriteMSR (hay que cambiarlos para init_task1)
+user.c = se llama a fork() y demás
+
+interrupt.c = WriteMSR
  
 system.c = se inicializa todo
 

@@ -1,5 +1,4 @@
 #include <libc.h>
-#include <sched.h>
 
 char buff[24];
 
@@ -47,8 +46,6 @@ main(void)
 	write(1, "\nWelcome to ZeOS!\n", 18);	//Prueba write
 
 	perror();	//Prueba perror
-
-	init_task1();
 
 	while(1);
 
