@@ -88,9 +88,9 @@ void init_task1(void)
 	list_del(first_free_task);
 	new_task = list_head_to_task_struct(first_free_task); 	// 0) Coger proceso libre + conversión a task struct
 
-	init_task->PID = 1;										// 1) PID = 1
-	allocate_DIR(init_task);								// 2) AllocateDIR
-	set_user_pages(init_task);								// 3) set_user_pages par inicializar espacio de dir.
+	new_task->PID = 1;										// 1) PID = 1
+	allocate_DIR(new_task);									// 2) AllocateDIR
+	set_user_pages(new_task);								// 3) set_user_pages par inicializar espacio de dir.
 
 	// 4) Modificar stack pointer del TSS para apuntar a la pila de sistema de new_task + Modificado WriteMSR 0x175
 	union task_union* new_task_union = (union task_union*) new_task;
@@ -132,7 +132,7 @@ void inner_task_switch_1(union task_union *new_union) //Misma cabecera que task_
 	tss.esp0 = new_union->task.kernel_esp;
 	writeMSR(0x175, tss.esp0);
 
-	set_cr3(get_DIR(new_union->task); //2 Cambiar espacio de direcciones de usuario por el actual
+	set_cr3(get_DIR(&new_union->task)); //2 Cambiar espacio de direcciones de usuario por el actual
 
 	inner_task_switch_2(&current()->kernel_esp, new_union->task.kernel_esp);	//3 se pasan las pilas de sistema (actual y a cambiar)
 }
