@@ -24,6 +24,8 @@ struct task_struct *new_task;
 
 extern struct list_head blocked;
 
+int newPID;
+
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -105,6 +107,8 @@ void init_task1(void)
 
 void init_sched()
 {
+	newPID = 0;
+
 	//init freequeue (INIT_LIST_HEAD en list.c inicializa lista vacía)
 	INIT_LIST_HEAD(&freequeue);
 	int i;	
@@ -138,4 +142,10 @@ void inner_task_switch_1(union task_union *new_union) //Misma cabecera que task_
 
 	inner_task_switch_2(&current()->kernel_esp, &new_union->task.kernel_esp); //3 pilas de sistema (actual y a cambiar)
 	printk(" // Done task_switch!");
+}
+
+int get_newPID()
+{
+	newPID++;
+	return newPID;
 }

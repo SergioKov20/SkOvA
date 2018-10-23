@@ -35,25 +35,82 @@ int sys_getpid()
 	return current()->PID;
 }
 
-int sys_fork() //TODO
+int sys_fork()
 {
-  	int PID=-1;
+  	int PID = -1;
 
   	// creates the child process
 
-	struct list_head *child_task_head = list_first(&freequeue); //1 get free task
+	if(list_empty(&freequeue)) return PID; //1 get free task, error if no space
+	
+	struct list_head *child_task_head = list_first(&freequeue); 
 	list_del(child_task_head);
 	struct task_struct *child_task = list_head_to_task_struct(child_task_head);
 
-	//2 TODO inherit system data: parent task_union you can use copy_data
+	union task_union *child_task_union = (union task_union *)child_task; //2 inherit parent task_union + you can use copy_data to copy
+	union task_union *parent_task_union = (union task_union *)current();
+	copy_data(parent_task_union, child_task_union, size_of(union task_union));
 	
 	allocate_DIR(child_task);	//3
 
-	//4 TODO alloc_frames(data+stack) if no se puede error
+	int frames[NUM_PAG_DATA]; //4 check available frames + not enough free pages = error
+	for(int i = 0; i < NUM_PAG_DATA; i++) {
+		if(alloc_frames() == -1) { //no hay frames suficientes, toca liberar
+			for(int j = 0; j < i; j++) free_frame(frames[j]);
+			return -1;
+		}
+	}
 
-	//5 TODO todo lo demás RIP
-  
-  	return PID;
+	//5 Inherit user data:
+
+	page_table_entry *tp_child = get_PT(child_task);
+	page_table_entry *tp_parent = get_PT(current());
+
+	for(int i = 0; i < PAG_LOG_INIT_DATA; i++) {			
+		set_ss_pag(tp_child, i, get_frame(tp_parent, i));
+	}
+
+	int start = PAG_LOG_INIT_DATA + NUM_PAG_DATA;
+	int temp = -1;
+	while(start < TOTAL_PAGES && temp == -1) {
+		if(tp_parent[i].entry == 0) temp = start;
+		start++;
+	}
+
+	if(temp == -1) return PID;
+
+	void *child_pageaddress;
+	void *parent_pageaddress;
+
+	for(int i = 0; i < NUM_PAG_DATA; i++)
+	{
+		set_ss_pag(tp_child, PAG_LOG_INIT_DATA + i, frames[i]);
+		set_ss_pag(tp_parent, temp, frames[i]);
+
+		child_pageaddress = (void *) ((temp) * PAGE_SIZE);
+		parent_pageaddress = (void *) ((PAG_LOG_INIT_DATA + i) * PAGE_SIZE);
+
+		copy_data(parent_pageaddress, child_pageaddress, PAGE_SIZE);
+		del_ss_pag(tp_parent, temp);
+		set_cr3(get_DIR(&parent_task_union->task));
+	}
+
+	//new PID
+	child_task->PID = get_newPID();
+	tp_parent[temp].entry = 0;
+
+	child_task->kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE - 19];
+	child_task_union->stack[KERNEL_STACK_SIZE - 19] = 0;
+	child_task_union->stack[KERNEL_STACK_SIZE - 18] = &ret_from_fork;
+
+	list_add_tail(&child_task->list, &readyqueue);
+
+  	return child_task->PID;
+}
+
+int ret_from_fork()
+{
+	return 0;
 }
 
 void sys_exit()
