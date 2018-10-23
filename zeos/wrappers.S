@@ -95,7 +95,7 @@ back_getpid:
 	ret
 
 
-ENTRY(fork) //TODO
+ENTRY(fork)
 	push %ebp		
 	movl %esp, %ebp
 
@@ -117,6 +117,26 @@ back_fork:
 	movl $-1, %eax		
 
 fin_fork:
+	movl %ebp, %esp
+	pop %ebp
+	ret
+
+//exit
+ENTRY(exit)
+	push %ebp		
+	movl %esp, %ebp
+
+	push %ecx		
+	push %edx
+	push %esi
+
+	movl $1, %eax		
+
+	leal back_exit, %esi	
+
+	sysenter	
+
+back_exit:
 	movl %ebp, %esp
 	pop %ebp
 	ret 			

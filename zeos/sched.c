@@ -92,9 +92,13 @@ void init_task1(void)
 	list_del(first_free_task);
 	new_task = list_head_to_task_struct(first_free_task); 	// 0) Coger proceso libre + conversión a task struct
 
-	new_task->PID = 1;					// 1) PID = 1
+	new_task->PID = get_newPID();			// 1) PID = 1
 	allocate_DIR(new_task);					// 2) AllocateDIR
 	set_user_pages(new_task);				// 3) set_user_pages par inicializar espacio de dir.
+
+	//esto es del planificador
+	new_task->state = ST_RUN;
+	new_task->quantum = 3;
 
 	// 4) Modificar stack pointer del TSS para apuntar a la pila de sistema de new_task + Modificado WriteMSR 0x175
 	union task_union* new_task_union = (union task_union*) new_task;
@@ -149,3 +153,81 @@ int get_newPID()
 	newPID++;
 	return newPID;
 }
+
+
+//Scheduler functions
+
+int get_quantum (struct task_struct *t)
+{
+	return t->quantum;
+}
+
+void set_quantum (struct task_struct* t, int new_quantum)
+{
+	t->quantum = new_quantum;
+}
+
+void update_sched_data_rr()
+{
+	current()->quantum--;
+}
+
+int needs_sched_rr()
+{
+	if(current()->quantum != 0) return 0;
+	return 1;
+}
+
+void update_process_state_rr (struct task_struct* t, struct list_head* dst_queue)
+{
+	if(dst_queue == NULL) {
+		list_del(&t->list);
+		t->state = ST_RUN;
+	}
+	else {
+		t->state = ST_READY;
+		list_add_tail(&t->list, dst_queue);
+	}
+}
+
+void sched_next_rr()
+{
+	struct list_head *next_head = list_first(&readyqueue);
+	list_del(next_head);
+
+	struct task_struct *next_struct = list_head_to_task_struct(next_head);
+	union task_union *next_union = (union task_union *)next_struct;
+
+	update_process_state_rr(next_struct, NULL);
+
+	task_switch(next_union);	
+}
+
+void init_scheduler()
+{
+	if(current()->PID == 0) {
+		if(!list_empty(&readyqueue)) {
+			sched_next_rr();
+		}
+		else return;	
+	}
+
+	else {
+		if(needs_sched_rr()) {
+			if(list_empty(&readyqueue)) {
+				union task_union *idle_union = (union task_union *)idle_task;
+				task_switch(idle_union);
+			}
+			else {
+				set_quantum(current(), 3);
+				update_process_state_rr(current(), &readyqueue);
+				sched_next_rr();
+			}
+		}
+		else {
+			update_sched_data_rr();
+		}
+	}
+}
+
+

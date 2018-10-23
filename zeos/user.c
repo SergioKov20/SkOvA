@@ -47,7 +47,8 @@ main(void)
 
 	perror();	//Prueba perror
 
-	pid = getpid();	//Prueba getpid
+	pid = fork();
+
 	printtime(pid);
 
 	while(1);

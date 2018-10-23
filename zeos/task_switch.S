@@ -21,13 +21,11 @@ ENTRY(task_switch)
 	ret
 
 
-ENTRY(inner_task_switch_2) //Parte asm de inner_task_switch //TODO failea
-	pushl %ebp
-
-	movl 4(%ebp), %eax	//Guardar valor de EBP en el current task_struct
+ENTRY(inner_task_switch_2) //Parte asm de inner_task_switch
+	movl 4(%esp), %eax	//Guardar valor de EBP en el current task_struct
 	movl %ebp, (%eax)
 
-	movl 8(%ebp), %esp	//ESP apuntando al kernel esp del new task_struct
+	movl 8(%esp), %esp	//ESP apuntando al kernel esp del new task_struct
 
 	pop %ebp
 	ret

@@ -19,6 +19,8 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   struct list_head list;
   unsigned long kernel_esp; //Para context switch de idle
+  enum state_t state;
+  int quantum;
 };
 
 union task_union {
@@ -29,6 +31,9 @@ union task_union {
 extern union task_union task[NR_TASKS]; /* Vector de tasques */
 
 extern struct task_struct *idle_task;
+
+extern struct list_head freequeue;
+extern struct list_head readyqueue;
 
 extern int newPID;
 
@@ -49,6 +54,8 @@ struct task_struct * current();
 void task_switch(union task_union*t);
 
 int get_newPID();
+
+void init_scheduler();
 
 // Prueba
 

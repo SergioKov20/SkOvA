@@ -35,6 +35,11 @@ int sys_getpid()
 	return current()->PID;
 }
 
+int ret_from_fork()
+{
+	return 0;
+}
+
 int sys_fork()
 {
   	int PID = -1;
@@ -49,13 +54,14 @@ int sys_fork()
 
 	union task_union *child_task_union = (union task_union *)child_task; //2 inherit parent task_union + you can use copy_data to copy
 	union task_union *parent_task_union = (union task_union *)current();
-	copy_data(parent_task_union, child_task_union, size_of(union task_union));
+	copy_data(parent_task_union, child_task_union, sizeof(union task_union));
 	
 	allocate_DIR(child_task);	//3
 
 	int frames[NUM_PAG_DATA]; //4 check available frames + not enough free pages = error
 	for(int i = 0; i < NUM_PAG_DATA; i++) {
-		if(alloc_frames() == -1) { //no hay frames suficientes, toca liberar
+		frames[i] = alloc_frame();
+		if(frames[i] == -1) { //no hay frames suficientes, toca liberar
 			for(int j = 0; j < i; j++) free_frame(frames[j]);
 			return -1;
 		}
@@ -73,7 +79,7 @@ int sys_fork()
 	int start = PAG_LOG_INIT_DATA + NUM_PAG_DATA;
 	int temp = -1;
 	while(start < TOTAL_PAGES && temp == -1) {
-		if(tp_parent[i].entry == 0) temp = start;
+		if(tp_parent[start].entry == 0) temp = start;
 		start++;
 	}
 
@@ -99,22 +105,28 @@ int sys_fork()
 	child_task->PID = get_newPID();
 	tp_parent[temp].entry = 0;
 
-	child_task->kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE - 19];
+	child_task->kernel_esp = (unsigned long) &child_task_union->stack[KERNEL_STACK_SIZE - 19];
 	child_task_union->stack[KERNEL_STACK_SIZE - 19] = 0;
-	child_task_union->stack[KERNEL_STACK_SIZE - 18] = &ret_from_fork;
+	child_task_union->stack[KERNEL_STACK_SIZE - 18] = (unsigned long) &ret_from_fork;
 
 	list_add_tail(&child_task->list, &readyqueue);
+
+	//Esto es del planificador
+	child_task->state = ST_READY;
+	child_task->quantum = 3;
 
   	return child_task->PID;
 }
 
-int ret_from_fork()
-{
-	return 0;
-}
-
 void sys_exit()
-{  
+{ 
+	int frames[NUM_PAG_DATA];
+	for(int i = 0; i < NUM_PAG_DATA; i++)
+	{
+		free_frame(frames[i]);
+	} 
+	list_del(&(current()->list));
+	list_add_tail(&(current()->list), &freequeue);
 }
 
 //SYS_WRITE

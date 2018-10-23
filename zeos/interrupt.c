@@ -116,7 +116,6 @@ void keyboard_routine()
 		else if(c == 'k')
 		{
 			printc_xy(0, 0, c);
-			task_switch((union task_union*)idle_task);
 		}
 		else printc_xy(0, 0, 'C');
 	}
@@ -126,4 +125,5 @@ void clock_routine()
 {
 	zeos_ticks++;
 	zeos_show_clock();
+	init_scheduler();
 }
