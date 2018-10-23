@@ -6,6 +6,8 @@
 #include <mm.h>
 #include <io.h>
 
+#include <entry.h>
+
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
@@ -74,11 +76,11 @@ void init_idle (void)
 
 	union task_union* idle_task_union = (union task_union*) idle_task;
 	//Context switch:
-	idle_task_union->stack[KERNEL_STACK_SIZE - 1] = &cpu_idle;	//Dirección a ejecutar = cpu_idle
+	idle_task_union->stack[KERNEL_STACK_SIZE - 1] = (unsigned long) &cpu_idle;	//Dirección a ejecutar = cpu_idle
 	idle_task_union->stack[KERNEL_STACK_SIZE - 2] = 0;		//Valor inicial registro ebp post dynamic link
 
 	//Guardar en campo struct que contiene el union la posición de pila del valor inicial anterior
-	idle_task_union->task.kernel_esp = &(idle_task_union->stack[KERNEL_STACK_SIZE - 2]);
+	idle_task_union->task.kernel_esp = (unsigned long) &(idle_task_union->stack[KERNEL_STACK_SIZE - 2]);
 	
 }
 
@@ -88,16 +90,16 @@ void init_task1(void)
 	list_del(first_free_task);
 	new_task = list_head_to_task_struct(first_free_task); 	// 0) Coger proceso libre + conversión a task struct
 
-	new_task->PID = 1;										// 1) PID = 1
-	allocate_DIR(new_task);									// 2) AllocateDIR
-	set_user_pages(new_task);								// 3) set_user_pages par inicializar espacio de dir.
+	new_task->PID = 1;					// 1) PID = 1
+	allocate_DIR(new_task);					// 2) AllocateDIR
+	set_user_pages(new_task);				// 3) set_user_pages par inicializar espacio de dir.
 
 	// 4) Modificar stack pointer del TSS para apuntar a la pila de sistema de new_task + Modificado WriteMSR 0x175
 	union task_union* new_task_union = (union task_union*) new_task;
-	tss.esp0 = &new_task_union->stack[KERNEL_STACK_SIZE];
+	tss.esp0 = (unsigned long) &new_task_union->stack[KERNEL_STACK_SIZE];
 	writeMSR(0x175, tss.esp0);
 
-	set_cr3(get_DIR(new_task));								// 5) set_cr3 para poner directorio páginas como el actual
+	set_cr3(get_DIR(new_task));				// 5) set_cr3 para poner directorio páginas como el actual
 }
 
 
@@ -134,5 +136,6 @@ void inner_task_switch_1(union task_union *new_union) //Misma cabecera que task_
 
 	set_cr3(get_DIR(&new_union->task)); //2 Cambiar espacio de direcciones de usuario por el actual
 
-	inner_task_switch_2(&current()->kernel_esp, new_union->task.kernel_esp);	//3 se pasan las pilas de sistema (actual y a cambiar)
+	inner_task_switch_2(&current()->kernel_esp, &new_union->task.kernel_esp); //3 pilas de sistema (actual y a cambiar)
+	printk(" // Done task_switch!");
 }

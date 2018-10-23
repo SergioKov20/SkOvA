@@ -43,7 +43,7 @@ int strlen(char *a)
   return i;
 }
 
-int perror()
+void perror()
 {
 	char errormsg[256];
 	itoa(errno, errormsg);

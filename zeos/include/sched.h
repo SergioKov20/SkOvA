@@ -46,6 +46,12 @@ struct task_struct * current();
 
 void task_switch(union task_union*t);
 
+// Prueba
+
+void inner_task_switch_2(unsigned long *current_kernelesp, unsigned long *new_kernelesp);
+
+//
+
 struct task_struct *list_head_to_task_struct(struct list_head *l);
 
 int allocate_DIR(struct task_struct *t);

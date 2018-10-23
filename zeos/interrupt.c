@@ -9,8 +9,6 @@
 #include <entry.h>
 #include <system.h>
 
-#include <sched.h> //prueba task_switch
-
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
@@ -117,7 +115,8 @@ void keyboard_routine()
 		}
 		else if(c == 'k')
 		{
-			task_switch(idle_task);
+			printc_xy(0, 0, c);
+			task_switch((union task_union*)idle_task);
 		}
 		else printc_xy(0, 0, 'C');
 	}

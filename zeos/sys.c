@@ -35,13 +35,25 @@ int sys_getpid()
 	return current()->PID;
 }
 
-int sys_fork()
+int sys_fork() //TODO
 {
-  int PID=-1;
+  	int PID=-1;
 
-  // creates the child process
+  	// creates the child process
+
+	struct list_head *child_task_head = list_first(&freequeue); //1 get free task
+	list_del(child_task_head);
+	struct task_struct *child_task = list_head_to_task_struct(child_task_head);
+
+	//2 TODO inherit system data: parent task_union you can use copy_data
+	
+	allocate_DIR(child_task);	//3
+
+	//4 TODO alloc_frames(data+stack) if no se puede error
+
+	//5 TODO todo lo demás RIP
   
-  return PID;
+  	return PID;
 }
 
 void sys_exit()

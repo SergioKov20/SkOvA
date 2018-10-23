@@ -20,7 +20,7 @@ int fork();
 
 void exit();
 
-int perror();
+void perror();
 
 int gettime();
 

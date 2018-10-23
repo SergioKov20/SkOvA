@@ -92,4 +92,31 @@ ENTRY(getpid)
 back_getpid:
 	movl %ebp, %esp
 	pop %ebp
-	ret 				
+	ret
+
+
+ENTRY(fork) //TODO
+	push %ebp		
+	movl %esp, %ebp
+
+	push %ecx		
+	push %edx
+	push %esi
+
+	movl $2, %eax		
+
+	leal back_fork, %esi	
+
+	sysenter		
+
+back_fork:	
+	cmpl $0, %eax
+	jge fin_fork
+	imul $-1, %eax		
+	movl %eax, errno
+	movl $-1, %eax		
+
+fin_fork:
+	movl %ebp, %esp
+	pop %ebp
+	ret 			
