@@ -3,7 +3,7 @@
  */
 
 #include <libc.h>
-#include <errno.h>
+
 #include <types.h>
 
 int errno;
@@ -45,7 +45,9 @@ int strlen(char *a)
 
 void perror()
 {
-	char errormsg[256];
-	itoa(errno, errormsg);
-	write(1, errormsg, strlen(errormsg));
+  char buffer[256];
+
+  itoa(errno, buffer);
+
+  write(1, buffer, strlen(buffer));
 }

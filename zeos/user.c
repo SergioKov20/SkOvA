@@ -46,9 +46,9 @@ main(void)
 	write(1, "\nWelcome to ZeOS!\n", 18);	//Prueba write
 
 	perror();	//Prueba perror
+	write(1, "\n", 1);
 
 	pid = fork();
-
 	printtime(pid);
 
 	while(1);

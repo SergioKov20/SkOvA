@@ -68,18 +68,16 @@ int __attribute__((__section__(".text.main")))
   // compiler will know its final memory location. Otherwise it will try to use the
   // 'ds' register to access the address... but we are not ready for that yet
   // (we are still in real mode).
-  set_seg_regs(__KERNEL_DS, __KERNEL_DS, (DWord) &task[4]);
+  set_seg_regs(__KERNEL_DS, __KERNEL_DS, (DWord) &protected_tasks[5]);
 
   /*** DO *NOT* ADD ANY CODE IN THIS ROUTINE BEFORE THIS POINT ***/
 
-  printk("Kernel Loaded! --- ");
+  printk("Kernel Loaded!    ");
 
-  zeos_ticks = 0; //INIT ZEOS TICKS TO 0
 
   /* Initialize hardware data */
   setGdt(); /* Definicio de la taula de segments de memoria */
   setIdt(); /* Definicio del vector de interrupcions */
-  setMSR(); //MSR init después de la IDT
   setTSS(); /* Definicio de la TSS */
 
   /* Initialize Memory */
@@ -91,19 +89,17 @@ int __attribute__((__section__(".text.main")))
 
   /* Initialize Scheduling */
   init_sched();
-  printk("Queues ready! // ");
+
   /* Initialize idle task  data */
   init_idle();
-  printk("Idle ready! // ");
   /* Initialize task 1 data */
   init_task1();
-  printk("Init ready!\n");
 
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 
 
-  printk("Entering user mode...\n");
+  printk("Entering user mode...");
 
   enable_int();
   /*

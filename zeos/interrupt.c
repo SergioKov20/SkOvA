@@ -6,8 +6,8 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
-#include <entry.h>
-#include <system.h>
+
+#include <sched.h>
 
 #include <zeos_interrupt.h>
 
@@ -30,6 +30,23 @@ char char_map[] =
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0'
 };
+
+int zeos_ticks = 0;
+
+void clock_routine()
+{
+  zeos_show_clock();
+  zeos_ticks ++;
+  
+  schedule();
+}
+
+void keyboard_routine()
+{
+  unsigned char c = inb(0x60);
+  
+  if (c&0x80) printc_xy(0, 0, char_map[c&0x7f]);
+}
 
 void setInterruptHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 {
@@ -75,55 +92,33 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
   idt[vector].highOffset      = highWord((DWord)handler);
 }
 
+void clock_handler();
+void keyboard_handler();
+void system_call_handler();
+
+void setMSR(unsigned long msr_number, unsigned long high, unsigned long low);
+
+void setSysenter()
+{
+  setMSR(0x174, 0, __KERNEL_CS);
+  setMSR(0x175, 0, INITIAL_ESP);
+  setMSR(0x176, 0, (unsigned long)system_call_handler);
+}
+
 void setIdt()
 {
-	/* Program interrups/exception service routines */
-	idtR.base  = (DWord)idt;
-	idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
+  /* Program interrups/exception service routines */
+  idtR.base  = (DWord)idt;
+  idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
+  
+  set_handlers();
 
-	set_handlers();
+  /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+  setInterruptHandler(32, clock_handler, 0);
+  setInterruptHandler(33, keyboard_handler, 0);
 
-	setInterruptHandler(33, keyboard_handler, 0);
-	setInterruptHandler(32, clock_handler, 0);
+  setSysenter();
 
-	/* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
-
-	set_idt_reg(&idtR);
-
+  set_idt_reg(&idtR);
 }
 
-void setMSR()
-{
-	writeMSR(0x174, __KERNEL_CS);
-	writeMSR(0x175, INITIAL_ESP);
-	writeMSR(0x176, (long) syscall_handler_sysenter);
-}
-
-void keyboard_routine() 
-{
-	//Leer datos del puerto 0x60
-    unsigned char key = inb(0x60);
-
-	//Es un MAKE (bit 7 = 0)
-	if(key < 0x80) 
-	{ 
-		char c = char_map[key];
-
-		if(c != '\0' && c != 'k')
-		{
-			printc_xy(0, 0, c);
-		}
-		else if(c == 'k')
-		{
-			printc_xy(0, 0, c);
-		}
-		else printc_xy(0, 0, 'C');
-	}
-}
-
-void clock_routine()
-{
-	zeos_ticks++;
-	zeos_show_clock();
-	init_scheduler();
-}
