@@ -29,27 +29,30 @@ int add(int par1, int par2)
 
 int add2(int par1, int par2);
 
-void printtime(int time)
+void workload_1()
 {
-	char buftime[256];
-	itoa(time, buftime);
-	write(1, buftime, strlen(buftime));
+
+}
+
+void workload_2()
+{
+
+}
+
+void workload_3()
+{
+
+}
+
+void workload_4()
+{
+
 }
 
 int __attribute__ ((__section__(".text.main")))
 
 main(void)
 {
-	int time = gettime();
-	printtime(time); //Prueba gettime
-
-	write(1, "\nWelcome to ZeOS!\n", 18);	//Prueba write
-
-	perror();	//Prueba perror
-	write(1, "\n", 1);
-
-	pid = fork();
-	printtime(pid);
 
 	while(1);
 

@@ -5,11 +5,11 @@
 #include <types.h>
 #include <hardware.h>
 #include <segment.h>
-#include <sched.h>
 #include <mm.h>
 #include <io.h>
 #include <utils.h>
 #include <p_stats.h>
+#include <schedperf.h>
 
 /**
  * Container for the Task array and 2 additional pages (the first and the last one)
@@ -149,11 +149,11 @@ void sched_next_rr(void)
 
 void schedule()
 {
-  update_sched_data_rr();
-  if (needs_sched_rr())
+  update_sched_data();
+  if (needs_sched())
   {
-    update_process_state_rr(current(), &readyqueue);
-    sched_next_rr();
+    update_process_state(current(), &readyqueue);
+    sched_next();
   }
 }
 
@@ -225,6 +225,8 @@ void init_freequeue()
 
 void init_sched()
 {
+  init_sched_policy(); //Variables de la interfaz de planificador apuntando a FCFS
+
   init_freequeue();
   INIT_LIST_HEAD(&readyqueue);
 }
@@ -263,4 +265,39 @@ void force_task_switch()
   update_process_state_rr(current(), &readyqueue);
 
   sched_next_rr();
+}
+
+struct stats * get_task_stats(struct task_struct *t) //Devuelve puntero a stats de t
+{
+	return &(t->p_stats);
+}
+
+struct list_head * get_task_list(struct task_struct *t) //Devuelve puntero a list de t
+{
+	return &(t->list);
+}
+
+void block_process(struct list_head *block_queue) 
+{
+	struct task_struct *t = current();
+	struct stats *st = get_task_stats(t);
+
+	st->system_ticks = get_ticks()-st->elapsed_total_ticks;
+	st->elapsed_total_ticks = get_ticks(); sched_next();
+
+	update_process_state(t, block_queue);
+}
+
+void unblock_process(struct task_struct *blocked)
+{
+	struct stats *st = get_task_stats(blocked);
+	st->blocked_ticks += (get_ticks()-st->elapsed_total_ticks);
+	st->elapsed_total_ticks = get_ticks();
+	update_process_state(blocked, &readyqueue);
+
+	if (needs_sched()) 
+	{
+		update_process_state(current(), &readyqueue);
+		sched_next();
+	}
 }
