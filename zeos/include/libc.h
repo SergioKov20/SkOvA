@@ -30,4 +30,8 @@ int yield();
 
 int get_stats(int pid, struct stats *st);
 
+int set_sched_policy(int policy);
+
+int read(int fd, char *buf, int nbytes);
+
 #endif  /* __LIBC_H__ */
