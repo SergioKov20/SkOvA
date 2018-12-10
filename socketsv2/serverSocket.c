@@ -31,6 +31,14 @@ int socket_fd = (int) fd;
 
 }
 
+doServiceFork(int fd) //Se crea nuevo proceso que será el que llame a doService
+{
+	if(fork() == 0) {
+		doService(fd);
+		exit(0);
+	}
+}
+
 
 main (int argc, char *argv[])
 {
@@ -65,7 +73,7 @@ main (int argc, char *argv[])
 		  exit (1);
 	  }
 
-	  doService(connectionFD);
+	  doServiceFork(connectionFD);
   }
 
 }

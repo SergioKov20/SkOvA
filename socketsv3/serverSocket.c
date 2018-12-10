@@ -2,6 +2,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#define MAX_CHILDS 20	//Tope de hijos alcanzable
+
+int current_childs = 0;	//Hijos actuales
+
 
 doService(int fd) {
 int i = 0;
@@ -29,6 +33,27 @@ int socket_fd = (int) fd;
 	sprintf(buff2, "Server [%d] ends service\n", getpid());
 	write(1, buff2, strlen(buff2));
 
+}
+
+doServiceFork(int fd) //Se crea nuevo proceso que será el que llame a doService, PERO si supera el MAX de hijos se bloquea
+{
+	if(current_childs >= MAX_CHILDS) 
+	{
+		perror("Max Child number reached.\n");
+		waitpid(-1, NULL, 0);
+		current_childs--;
+	}
+
+	if(current_childs < MAX_CHILDS)
+	{
+		current_childs++;
+		int pid = fork();
+
+		if(pid == 0) {
+			doService(fd);
+			exit(0);
+		}
+	}
 }
 
 
@@ -65,7 +90,7 @@ main (int argc, char *argv[])
 		  exit (1);
 	  }
 
-	  doService(connectionFD);
+	  doServiceFork(connectionFD);
   }
 
 }
